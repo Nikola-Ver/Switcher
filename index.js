@@ -4,10 +4,11 @@ const exec = require('child_process').exec;
 const path = require('path');
 const fs = require('fs');
 
-const accDir = './accounts';
+const accDir = path.join(process.argv[1], '../', 'accounts');
 let currentPos = 0;
 
 fs.readdir(accDir, (err, files) => {
+  if (!files) return;
   console.clear();
   let info = 'Use arrow key to move and c key to select:\n\n';
   files.forEach((file, i) => {
