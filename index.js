@@ -34,6 +34,9 @@ fs.readdir(accDir, (err, files) => {
         if (currentPos > 0) currentPos--;
       } else if (key.name === 'down') {
         if (currentPos < files.length - 1) currentPos++;
+      } else if (key.name === 'q') {
+        process.stdin.pause();
+        return;
       }
     }
     files.forEach((file, i) => {
