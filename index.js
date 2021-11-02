@@ -19,6 +19,7 @@ fs.readdir(accDir, (err, files) => {
     }
   });
   console.log(info);
+  process.stdout.write('\x1B[?25l');
 
   keypress(process.stdin);
 
@@ -28,6 +29,7 @@ fs.readdir(accDir, (err, files) => {
     if (key) {
       if (key.name === 'c') {
         exec(path.join(accDir, files[currentPos]));
+        process.stdout.write('\x1B[?25h');
         process.stdin.pause();
         return;
       } else if (key.name === 'up') {
@@ -36,6 +38,7 @@ fs.readdir(accDir, (err, files) => {
         if (currentPos < files.length - 1) currentPos++;
       } else if (key.name === 'q') {
         process.stdin.pause();
+        process.stdout.write('\x1B[?25h');
         return;
       }
     }
