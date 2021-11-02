@@ -1,15 +1,30 @@
 const keypress = require('keypress');
 const colors = require('colors');
-const exec = require('child_process').exec;
+const util = require('util');
+const exec = util.promisify(require('child_process').exec);
 const path = require('path');
 const fs = require('fs');
 
-const accDir = path.join(process.argv[1], '../', 'accounts');
+const CHECK_GIT_NAME = 'git config user.name';
+const CHECK_GIT_EMAIL = 'git config user.email';
+const ACC_DIR = path.join(process.argv[1], '../', 'accounts');
+
 let currentPos = 0;
 
-fs.readdir(accDir, (err, files) => {
+console.clear();
+
+fs.readdir(ACC_DIR, async (_, files) => {
+  const { stdout } = await exec(CHECK_GIT_EMAIL);
+  files.forEach((file, index) => {
+    const reg = new RegExp(' ' + stdout.replace(/\n/g, '') + '($| |\n|\r)');
+    const fileContent = fs.readFileSync(path.join(ACC_DIR, file)).toString();
+    if (reg.test(fileContent)) {
+      currentPos = index;
+    }
+  });
+
   if (!files) return;
-  console.clear();
+
   let info = 'Use arrow key to move and c key to select:\n\n';
   files.forEach((file, i) => {
     if (i === currentPos) {
@@ -18,17 +33,22 @@ fs.readdir(accDir, (err, files) => {
       info += new String(' ' + file.replace(/\..*/, '') + '\n').gray;
     }
   });
+
   console.log(info);
   process.stdout.write('\x1B[?25l');
-
   keypress(process.stdin);
 
-  process.stdin.on('keypress', function (ch, key) {
+  let isShowConfig = false;
+
+  process.stdin.on('keypress', async (ch, key) => {
     console.clear();
     let info = 'Use arrow key to move and c key to select:\n\n';
+
     if (key) {
-      if (key.name === 'c') {
-        exec(path.join(accDir, files[currentPos]));
+      if (key.name === 'p') {
+        exec(path.join(ACC_DIR, files[currentPos]));
+      } else if (key.name === 'c') {
+        exec(path.join(ACC_DIR, files[currentPos]));
         process.stdout.write('\x1B[?25h');
         process.stdin.pause();
         return;
@@ -40,8 +60,19 @@ fs.readdir(accDir, (err, files) => {
         process.stdin.pause();
         process.stdout.write('\x1B[?25h');
         return;
+      } else if (key.name === 's') {
+        if (!isShowConfig) {
+          let res = 'Name: '.gray + (await exec(CHECK_GIT_NAME)).stdout;
+          res += 'Email: '.gray + (await exec(CHECK_GIT_EMAIL)).stdout;
+          console.log(res);
+          isShowConfig = true;
+          return;
+        }
       }
     }
+
+    isShowConfig = false;
+
     files.forEach((file, i) => {
       if (i === currentPos) {
         info += '>  ' + file.replace(/\..*/, '') + '\n';
