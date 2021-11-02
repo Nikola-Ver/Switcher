@@ -11,8 +11,6 @@ const ACC_DIR = path.join(process.argv[1], '../', 'accounts');
 
 let currentPos = 0;
 
-console.clear();
-
 fs.readdir(ACC_DIR, async (_, files) => {
   const { stdout } = await exec(CHECK_GIT_EMAIL);
   files.forEach((file, index) => {
@@ -34,6 +32,7 @@ fs.readdir(ACC_DIR, async (_, files) => {
     }
   });
 
+  console.clear();
   console.log(info);
   process.stdout.write('\x1B[?25l');
   keypress(process.stdin);
