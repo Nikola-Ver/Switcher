@@ -5,6 +5,7 @@ const exec = util.promisify(require('child_process').exec);
 const path = require('path');
 const fs = require('fs');
 
+const INFO_TEXT = 'Use arrow key to move and enter key to select:\n\n';
 const CHECK_GIT_NAME = 'git config user.name';
 const CHECK_GIT_EMAIL = 'git config user.email';
 const ACC_DIR = path.join(process.argv[1], '../', 'accounts');
@@ -23,7 +24,7 @@ fs.readdir(ACC_DIR, async (_, files) => {
 
   if (!files) return;
 
-  let info = 'Use arrow key to move and c key to select:\n\n';
+  let info = INFO_TEXT;
   files.forEach((file, i) => {
     if (i === currentPos) {
       info += '>  ' + file.replace(/\..*/, '') + '\n';
@@ -41,7 +42,7 @@ fs.readdir(ACC_DIR, async (_, files) => {
 
   process.stdin.on('keypress', async (ch, key) => {
     console.clear();
-    let info = 'Use arrow key to move and enter key to select:\n\n';
+    let info = INFO_TEXT;
 
     if (key) {
       if (key.name === 'c') {
