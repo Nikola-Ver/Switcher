@@ -41,12 +41,12 @@ fs.readdir(ACC_DIR, async (_, files) => {
 
   process.stdin.on('keypress', async (ch, key) => {
     console.clear();
-    let info = 'Use arrow key to move and c key to select:\n\n';
+    let info = 'Use arrow key to move and enter key to select:\n\n';
 
     if (key) {
-      if (key.name === 'p') {
+      if (key.name === 'c') {
         exec(path.join(ACC_DIR, files[currentPos]));
-      } else if (key.name === 'c') {
+      } else if (key.name === 'return') {
         exec(path.join(ACC_DIR, files[currentPos]));
         process.stdout.write('\x1B[?25h');
         process.stdin.pause();
@@ -55,13 +55,13 @@ fs.readdir(ACC_DIR, async (_, files) => {
         if (currentPos > 0) currentPos--;
       } else if (key.name === 'down') {
         if (currentPos < files.length - 1) currentPos++;
-      } else if (key.name === 'q') {
+      } else if (key.name === 'escape' || key.name === 'q') {
         process.stdin.pause();
         process.stdout.write('\x1B[?25h');
         return;
       } else if (key.name === 's') {
         if (!isShowConfig) {
-          let res = 'Name: '.gray + (await exec(CHECK_GIT_NAME)).stdout;
+          let res = 'Name:  '.gray + (await exec(CHECK_GIT_NAME)).stdout;
           res += 'Email: '.gray + (await exec(CHECK_GIT_EMAIL)).stdout;
           console.log(res);
           isShowConfig = true;
